@@ -7,8 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 8080
-
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--timeout", "300", "main:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} --timeout 300 main:app"]
