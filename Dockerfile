@@ -1,16 +1,23 @@
-FROM python:3.11-slim
+FROM ubuntu:22.04
 
-WORKDIR /app
-
+ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/browsers
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Chromium and all its system dependencies during BUILD (not at runtime)
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
 RUN playwright install chromium --with-deps
 
 COPY . .
 
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} --timeout 300 --log-level debug main:app"]
+CMD ["sh", "-c", "python main.py"]
